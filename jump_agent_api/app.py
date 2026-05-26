@@ -5,7 +5,7 @@ import os
 import re
 import json
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, Optional
 
 import duckdb
 from fastapi import Depends, FastAPI, Header, HTTPException, Query
@@ -44,12 +44,12 @@ app = FastAPI(
 _MATRIX_COLUMNS_CACHE: dict[str, list[str]] = {}
 
 
-def require_api_key(api_key: str | None = Depends(API_KEY_HEADER)) -> None:
+def require_api_key(api_key: Optional[str] = Depends(API_KEY_HEADER)) -> None:
     if API_KEY and api_key != API_KEY:
         raise HTTPException(status_code=401, detail="Missing or invalid X-API-Key")
 
 
-def clamp_limit(limit: int | None, default: int = 100) -> int:
+def clamp_limit(limit: Optional[int], default: int = 100) -> int:
     value = default if limit is None else limit
     return max(1, min(value, MAX_LIMIT))
 
@@ -84,7 +84,7 @@ def rows_to_dicts(cursor: duckdb.DuckDBPyConnection) -> list[dict[str, Any]]:
     return rows
 
 
-def query_db(path: Path, sql: str, params: list[Any] | None = None) -> list[dict[str, Any]]:
+def query_db(path: Path, sql: str, params: Optional[list[Any]] = None) -> list[dict[str, Any]]:
     if not path.exists():
         raise HTTPException(status_code=503, detail=f"Database not found: {path}")
     con = duckdb.connect(str(path), read_only=True)
@@ -94,7 +94,7 @@ def query_db(path: Path, sql: str, params: list[Any] | None = None) -> list[dict
         con.close()
 
 
-def query_metadata_with_copairs(sql: str, params: list[Any] | None = None) -> list[dict[str, Any]]:
+def query_metadata_with_copairs(sql: str, params: Optional[list[Any]] = None) -> list[dict[str, Any]]:
     if not METADATA_DB.exists() or not COPAIRS_DB.exists():
         raise HTTPException(status_code=503, detail="Required DuckDB files are missing")
     con = duckdb.connect(str(METADATA_DB), read_only=True)
@@ -105,7 +105,7 @@ def query_metadata_with_copairs(sql: str, params: list[Any] | None = None) -> li
         con.close()
 
 
-def scalar_db(path: Path, sql: str, params: list[Any] | None = None) -> Any:
+def scalar_db(path: Path, sql: str, params: Optional[list[Any]] = None) -> Any:
     if not path.exists():
         raise HTTPException(status_code=503, detail=f"Database not found: {path}")
     con = duckdb.connect(str(path), read_only=True)
@@ -197,18 +197,18 @@ class IdsRequest(BaseModel):
 
 
 class SearchRequest(BaseModel):
-    query: str | None = None
+    query: Optional[str] = None
     targets: list[str] = Field(default_factory=list)
     moa: list[str] = Field(default_factory=list)
     disease_area: list[str] = Field(default_factory=list)
     source: list[str] = Field(default_factory=list)
-    active: bool | None = None
-    has_pains: bool | None = None
-    valid_mol: bool | None = None
-    mw_min: float | None = None
-    mw_max: float | None = None
-    logp_min: float | None = None
-    logp_max: float | None = None
+    active: Optional[bool] = None
+    has_pains: Optional[bool] = None
+    valid_mol: Optional[bool] = None
+    mw_min: Optional[float] = None
+    mw_max: Optional[float] = None
+    logp_min: Optional[float] = None
+    logp_max: Optional[float] = None
     limit: int = 100
     offset: int = 0
     config: RunConfig = Field(default_factory=RunConfig)
@@ -223,7 +223,7 @@ class ActivityRequest(BaseModel):
 
 class ConsistencyRequest(BaseModel):
     config: ConsistencyConfig = Field(default_factory=ConsistencyConfig)
-    group_value: str | None = None
+    group_value: Optional[str] = None
     significant_only: bool = False
     limit: int = 100
     offset: int = 0
@@ -388,7 +388,7 @@ def datasets() -> dict[str, Any]:
 
 
 @app.get("/schema/{database}", dependencies=[Depends(require_api_key)])
-def schema(database: Literal["metadata", "copairs", "zenodo"], table: str | None = None, limit_columns: int = 200) -> dict[str, Any]:
+def schema(database: Literal["metadata", "copairs", "zenodo"], table: Optional[str] = None, limit_columns: int = 200) -> dict[str, Any]:
     if database == "metadata":
         db_path = METADATA_DB
     elif database == "copairs":
