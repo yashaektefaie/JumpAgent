@@ -1,0 +1,4 @@
+duckdb
+fastapi
+pydantic
+uvicorn
