@@ -63,9 +63,18 @@ Check status:
 ```bash
 scripts/status.sh
 curl -H "X-API-Key: $(cat /srv/jump/api_key)" http://127.0.0.1:8000/health
+scripts/smoke_test_api.py
 ```
 
 ## Agent Functions
+
+For coding agents with repository access, start with [AGENTS.md](AGENTS.md). For agents that only have a URL, provide:
+
+```text
+https://jump-agent.net/jump-agent
+```
+
+That manifest points to the OpenAPI schema, docs, auth scheme, example request, and available tools.
 
 - `GET /health`
 - `GET /jump-agent`
@@ -118,6 +127,17 @@ The manifest at `/jump-agent` is the shortest bootstrap document to share with o
 - Processed figures, summaries, CSVs, and Parquets from the analysis repo: `/artifacts/search`, `/artifacts/read`
 
 ## Example Calls
+
+Against the public HTTPS service:
+
+```bash
+curl https://jump-agent.net/jump-agent
+
+curl -H "Authorization: Bearer <api-key>" \
+  https://jump-agent.net/datasets
+```
+
+Against the EC2-local service:
 
 ```bash
 KEY="$(cat /srv/jump/api_key)"
