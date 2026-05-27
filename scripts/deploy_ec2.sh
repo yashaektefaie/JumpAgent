@@ -48,5 +48,6 @@ WantedBy=multi-user.target
 EOF
 
 sudo systemctl daemon-reload
-sudo systemctl enable --now jump-agent-api
+sudo systemctl enable jump-agent-api
+sudo systemctl restart jump-agent-api
 sudo systemctl --no-pager --full status jump-agent-api
