@@ -44,6 +44,20 @@ Deploy or update the API:
 scripts/deploy_ec2.sh
 ```
 
+Set up HTTPS for `jump-agent.net`:
+
+```bash
+JUMP_AGENT_DOMAIN=jump-agent.net scripts/setup_caddy.sh
+```
+
+DNS and AWS security group prerequisites:
+
+- `A jump-agent.net -> 18.222.30.220`
+- inbound `80/tcp` from `0.0.0.0/0` for Let's Encrypt HTTP validation
+- inbound `443/tcp` from `0.0.0.0/0` for agents
+- inbound `22/tcp` restricted to admin IPs
+- no public inbound `8000/tcp`; FastAPI binds to `127.0.0.1:8000`
+
 Check status:
 
 ```bash
@@ -80,7 +94,12 @@ curl -H "X-API-Key: $(cat /srv/jump/api_key)" http://127.0.0.1:8000/health
 - `GET /provenance`
 
 All endpoints except `GET /health`, `GET /tools`, `GET /docs`, and `GET /openapi.json`
-require `X-API-Key` when `JUMP_API_KEY` is set.
+require an API key when `JUMP_API_KEY` is set. Agents can send either:
+
+```text
+Authorization: Bearer <key>
+X-API-Key: <key>
+```
 
 The OpenAPI spec is available at `/openapi.json`, so agents can discover request and response shapes directly.
 

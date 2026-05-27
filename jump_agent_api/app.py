@@ -44,9 +44,15 @@ app = FastAPI(
 _MATRIX_COLUMNS_CACHE: dict[str, list[str]] = {}
 
 
-def require_api_key(api_key: Optional[str] = Depends(API_KEY_HEADER)) -> None:
-    if API_KEY and api_key != API_KEY:
-        raise HTTPException(status_code=401, detail="Missing or invalid X-API-Key")
+def require_api_key(
+    api_key: Optional[str] = Depends(API_KEY_HEADER),
+    authorization: Optional[str] = Header(default=None),
+) -> None:
+    bearer_token = None
+    if authorization and authorization.lower().startswith("bearer "):
+        bearer_token = authorization.split(" ", 1)[1].strip()
+    if API_KEY and api_key != API_KEY and bearer_token != API_KEY:
+        raise HTTPException(status_code=401, detail="Missing or invalid API key")
 
 
 def clamp_limit(limit: Optional[int], default: int = 100) -> int:

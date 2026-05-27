@@ -39,7 +39,7 @@ User=ec2-user
 WorkingDirectory=$REPO_DIR
 Environment=JUMP_DATA_ROOT=$ROOT/data
 EnvironmentFile=-$ROOT/jump-agent.env
-ExecStart=/bin/bash -lc 'export JUMP_API_KEY="\$(cat $ROOT/api_key)"; exec $VENV/bin/uvicorn jump_agent_api.app:app --host 0.0.0.0 --port 8000'
+ExecStart=/bin/bash -lc 'export JUMP_API_KEY="\$(cat $ROOT/api_key)"; exec $VENV/bin/uvicorn jump_agent_api.app:app --host 127.0.0.1 --port 8000'
 Restart=on-failure
 RestartSec=5
 
