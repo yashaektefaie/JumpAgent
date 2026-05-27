@@ -350,6 +350,48 @@ TOOLS = [
 ]
 
 
+def service_manifest() -> dict[str, Any]:
+    return {
+        "name": "JUMP Agent API",
+        "description": "OpenAPI/HTTP tool server for processed JUMP production and JUMP Hub data.",
+        "base_url": "https://jump-agent.net",
+        "discovery": {
+            "manifest": "https://jump-agent.net/jump-agent",
+            "openapi": "https://jump-agent.net/openapi.json",
+            "docs": "https://jump-agent.net/docs",
+            "tools": "https://jump-agent.net/tools",
+            "health": "https://jump-agent.net/health",
+        },
+        "auth": {
+            "required_for_data_endpoints": True,
+            "preferred_header": "Authorization: Bearer <api-key>",
+            "alternate_header": "X-API-Key: <api-key>",
+            "public_endpoints": ["/health", "/tools", "/jump-agent", "/docs", "/openapi.json"],
+        },
+        "usage": {
+            "discover": "Fetch /jump-agent, then /openapi.json for schemas.",
+            "call": "Use JSON HTTP requests against listed endpoints with Authorization: Bearer <api-key>.",
+            "example": {
+                "method": "POST",
+                "url": "https://jump-agent.net/activity/summary",
+                "headers": {"Authorization": "Bearer <api-key>", "Content-Type": "application/json"},
+                "body": {
+                    "dataset": "compound_no_source7",
+                    "preprocessing": "activity_no_target2",
+                    "filter": "all_sources",
+                    "activity_params": "default",
+                },
+            },
+        },
+        "tools": TOOLS,
+    }
+
+
+@app.get("/jump-agent")
+def jump_agent_manifest() -> dict[str, Any]:
+    return service_manifest()
+
+
 @app.get("/health")
 def health() -> dict[str, Any]:
     return {

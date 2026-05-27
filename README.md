@@ -68,6 +68,7 @@ curl -H "X-API-Key: $(cat /srv/jump/api_key)" http://127.0.0.1:8000/health
 ## Agent Functions
 
 - `GET /health`
+- `GET /jump-agent`
 - `GET /tools`
 - `GET /datasets`
 - `GET /schema/{database}`
@@ -93,7 +94,7 @@ curl -H "X-API-Key: $(cat /srv/jump/api_key)" http://127.0.0.1:8000/health
 - `GET /artifacts/read`
 - `GET /provenance`
 
-All endpoints except `GET /health`, `GET /tools`, `GET /docs`, and `GET /openapi.json`
+All endpoints except `GET /health`, `GET /jump-agent`, `GET /tools`, `GET /docs`, and `GET /openapi.json`
 require an API key when `JUMP_API_KEY` is set. Agents can send either:
 
 ```text
@@ -101,7 +102,7 @@ Authorization: Bearer <key>
 X-API-Key: <key>
 ```
 
-The OpenAPI spec is available at `/openapi.json`, so agents can discover request and response shapes directly.
+The manifest at `/jump-agent` is the shortest bootstrap document to share with other agents. The OpenAPI spec is available at `/openapi.json`, so agents can discover request and response shapes directly.
 
 ## What Each Function Is For
 
